@@ -32,7 +32,10 @@ def _launch_setup(context):
         executable='fastdem_node',
         name='fastdem',
         output='screen',
-        parameters=[node_params],
+        parameters=[node_params, {'use_sim_time': True}],
+        remappings=[
+            ('/tf', '/j100_0000/tf'),
+            ('/tf_static', '/j100_0000/tf_static')]
     )
 
     # RViz2 (optional)
@@ -41,6 +44,7 @@ def _launch_setup(context):
         executable='rviz2',
         name='rviz2',
         arguments=['-d', rviz_config],
+        parameters=[{'use_sim_time': True}],
         condition=IfCondition(LaunchConfiguration('rviz')),
     )
 
@@ -48,7 +52,27 @@ def _launch_setup(context):
 
 
 def generate_launch_description():
+    
     return LaunchDescription([
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='map_to_odom_gt',
+            arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom_gt'],
+            parameters=[{'use_sim_time': True}],
+            remappings=[('/tf_static', '/j100_0000/tf_static')],
+        ),
+
+        # Identity odom_gt -> odom so Nav2's local frame ('odom') still resolves
+        # without a localization node and matches exploration.launch.py.
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='odom_gt_to_odom',
+            arguments=['0', '0', '0', '0', '0', '0', 'odom_gt', 'odom'],
+            parameters=[{'use_sim_time': True}],
+            remappings=[('/tf_static', '/j100_0000/tf_static')],
+        ),
         DeclareLaunchArgument(
             'global_mapping', default_value='false',
             description='Enable global (fixed-origin) mapping mode'),
