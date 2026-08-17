@@ -17,7 +17,7 @@ map:
 
 point_filter:
   z_min: -0.5       # [m] min height in base frame
-  z_max: 10.0        # [m] max height in base frame
+  z_max: 1.5        # [m] max height in base frame
   range_min: 0.5    # [m] min range from sensor
   range_max: 20.0   # [m] max range from sensor
 
@@ -56,7 +56,7 @@ sensor_model:
 
 # ─── Post-processing ───────────────────────────────
 raycasting:
-  enabled: false
+  enabled: true
   height_conflict_threshold: 0.05  # [m]
   log_odds_observed: 0.4
   log_odds_ghost: 0.2
